@@ -1,0 +1,164 @@
+import java.io.Serializable;
+
+public class Employee implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private int id;
+    private String name;
+    private String designation;
+    private double salary;
+
+    // Constructor
+    public Employee(int id, String name, String designation, double salary) {
+        this.id = id;
+        this.name = name;
+        this.designation = designation;
+        this.salary = salary;
+    }
+
+    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(double salary) {
+        this.salary = salary;
+    }
+
+    // Method to display employee details
+    public void displayEmployee() {
+        System.out.println("Employee ID: " + id);
+        System.out.println("Employee Name: " + name);
+        System.out.println("Employee Designation: " + designation);
+        System.out.println("Employee Salary: " + salary);
+    }
+}
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class EmployeeManager {
+    private static final String FILE_NAME = "employees.ser";
+
+    // Method to add an employee to the list and serialize to the file
+    public static void addEmployee(Employee employee) {
+        List<Employee> employees = readEmployeesFromFile();
+        employees.add(employee);
+        writeEmployeesToFile(employees);
+    }
+
+    // Method to display all employees
+    public static void displayEmployees() {
+        List<Employee> employees = readEmployeesFromFile();
+        if (employees.isEmpty()) {
+            System.out.println("No employees found.");
+        } else {
+            for (Employee emp : employees) {
+                emp.displayEmployee();
+                System.out.println("----------------------------");
+            }
+        }
+    }
+
+    // Method to read employees from the file
+    private static List<Employee> readEmployeesFromFile() {
+        List<Employee> employees = new ArrayList<>();
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            employees = (List<Employee>) in.readObject();
+        } catch (FileNotFoundException e) {
+            // File does not exist yet, return empty list
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error reading employee data: " + e.getMessage());
+        }
+        return employees;
+    }
+
+    // Method to write employees to the file
+    private static void writeEmployeesToFile(List<Employee> employees) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            out.writeObject(employees);
+        } catch (IOException e) {
+            System.out.println("Error writing to file: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int option;
+
+        do {
+            // Display menu
+            System.out.println("Menu:");
+            System.out.println("1. Add an Employee");
+            System.out.println("2. Display All Employees");
+            System.out.println("3. Exit");
+            System.out.print("Enter your option: ");
+            option = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
+            switch (option) {
+                case 1:
+                    // Add employee details
+                    System.out.print("Enter Employee ID: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine(); // Consume the newline character
+
+                    System.out.print("Enter Employee Name: ");
+                    String name = scanner.nextLine();
+
+                    System.out.print("Enter Employee Designation: ");
+                    String designation = scanner.nextLine();
+
+                    System.out.print("Enter Employee Salary: ");
+                    double salary = scanner.nextDouble();
+
+                    Employee newEmployee = new Employee(id, name, designation, salary);
+                    addEmployee(newEmployee);
+                    System.out.println("Employee added successfully!");
+                    break;
+
+                case 2:
+                    // Display all employees
+                    displayEmployees();
+                    break;
+
+                case 3:
+                    // Exit the application
+                    System.out.println("Exiting...");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+
+        } while (option != 3);
+
+        scanner.close();
+    }
+}
